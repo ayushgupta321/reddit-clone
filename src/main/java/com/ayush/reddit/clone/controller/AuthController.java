@@ -1,6 +1,8 @@
 package com.ayush.reddit.clone.controller;
 
 
+import com.ayush.reddit.clone.pojo.AuthenticationResponse;
+import com.ayush.reddit.clone.pojo.LoginRequest;
 import com.ayush.reddit.clone.pojo.RegisterRequestPojo;
 import com.ayush.reddit.clone.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,11 @@ public class AuthController {
     public ResponseEntity signup(@RequestBody RegisterRequestPojo registerRequest){
         authService.signup(registerRequest);
         return new ResponseEntity(OK);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 
     @GetMapping("accountVerification/{token}")

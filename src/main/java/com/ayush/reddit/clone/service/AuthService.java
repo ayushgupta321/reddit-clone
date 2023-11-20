@@ -3,11 +3,19 @@ package com.ayush.reddit.clone.service;
 import com.ayush.reddit.clone.model.NotificationEmail;
 import com.ayush.reddit.clone.model.User;
 import com.ayush.reddit.clone.model.VerificationToken;
+import com.ayush.reddit.clone.pojo.AuthenticationResponse;
+import com.ayush.reddit.clone.pojo.LoginRequest;
 import com.ayush.reddit.clone.pojo.RegisterRequestPojo;
 import com.ayush.reddit.clone.repository.UserRepository;
 import com.ayush.reddit.clone.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +35,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailContentBuilder mailContentBuilder;
+    private final JwtService jwtService;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
 
 
     @Transactional
@@ -73,5 +83,13 @@ public class AuthService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User Not Found with id - " + username));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    public AuthenticationResponse login(LoginRequest loginRequest)  {
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        User userDetails = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        String authenticationToken = jwtService.generateToken(userDetails);
+        return new AuthenticationResponse(authenticationToken, loginRequest.getUsername());
     }
 }
