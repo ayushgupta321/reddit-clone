@@ -57,6 +57,10 @@ public class AuthService {
         mailService.sendMail(new NotificationEmail("Please Activate your account", user.getEmail(), message));
     }
 
+    public User getCurrentUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     private String generateVerificationToken(User user) {
         //TODO: Replace with nanoId
         String token = UUID.randomUUID().toString();
