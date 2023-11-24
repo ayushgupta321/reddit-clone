@@ -21,7 +21,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 public class Post {
     @Id
     @GeneratedValue(strategy = SEQUENCE)
-    private int postId;
+    private long postId;
 
     private Instant createdDate;
 
