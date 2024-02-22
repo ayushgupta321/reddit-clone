@@ -8,6 +8,7 @@ import com.ayush.reddit.clone.model.Subreddit;
 import com.ayush.reddit.clone.model.User;
 import com.ayush.reddit.clone.pojo.PostRequest;
 import com.ayush.reddit.clone.pojo.PostResponse;
+import com.ayush.reddit.clone.repository.CommentRepository;
 import com.ayush.reddit.clone.repository.PostRepository;
 import com.ayush.reddit.clone.repository.SubredditRepository;
 import com.ayush.reddit.clone.repository.UserRepository;
@@ -25,6 +26,7 @@ public class PostService {
     private final SubredditRepository subredditRepository;
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     public void save(PostRequest postRequest) {
         Subreddit subreddit = subredditRepository.findByName(postRequest.getSubredditName()).orElseThrow(() -> new SubredditNotFoundException("SubReddit not found"));
@@ -62,6 +64,8 @@ public class PostService {
                 .userName(post.getUser().getUsername())
                 .postName(post.getPostName())
                 .id(post.getPostId())
+                .commentCount(commentRepository.findByPost(post).size())
+                .voteCount(post.getPostVoteCount())
                 .build();
     }
 
